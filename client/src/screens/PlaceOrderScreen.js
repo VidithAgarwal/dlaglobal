@@ -42,10 +42,11 @@ const PlaceOrderScreen = ({ history }) => {
 				dispatch({ type: ORDER_CREATE_RESET });
 			}
 		},
-		// eslint-disable-next-line
 		[
 			history,
-			success
+			success,
+			dispatch,
+			order
 		]
 	);
 

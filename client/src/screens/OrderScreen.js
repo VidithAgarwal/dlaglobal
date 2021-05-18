@@ -12,15 +12,12 @@ import { ORDER_PAY_RESET, ORDER_DELIVER_RESET } from '../constants/orderConstant
 const OrderScreen = ({ match, history }) => {
 	const orderId = match.params.id;
 
-	const dispatch = useDispatch();
-
 	const [
 		sdkReady,
 		setSdkReady
 	] = useState(false);
 
-	const userLogin = useSelector((state) => state.userLogin);
-	const { userInfo } = userLogin;
+	const dispatch = useDispatch();
 
 	const orderDetails = useSelector((state) => state.orderDetails);
 	const { order, loading, error } = orderDetails;
@@ -30,6 +27,9 @@ const OrderScreen = ({ match, history }) => {
 
 	const orderDeliver = useSelector((state) => state.orderDeliver);
 	const { loading: loadingDeliver, success: successDeliver } = orderDeliver;
+
+	const userLogin = useSelector((state) => state.userLogin);
+	const { userInfo } = userLogin;
 
 	if (!loading) {
 		//   Calculate prices
@@ -45,7 +45,8 @@ const OrderScreen = ({ match, history }) => {
 			if (!userInfo) {
 				history.push('/login');
 			}
-			const addPaypalScript = async () => {
+
+			const addPayPalScript = async () => {
 				const { data: clientId } = await axios.get('/api/config/paypal');
 				const script = document.createElement('script');
 				script.type = 'text/javascript';
@@ -57,15 +58,14 @@ const OrderScreen = ({ match, history }) => {
 				document.body.appendChild(script);
 			};
 
-			if (!order || successPay || successDeliver) {
+			if (!order || successPay || successDeliver || order._id !== orderId) {
 				dispatch({ type: ORDER_PAY_RESET });
 				dispatch({ type: ORDER_DELIVER_RESET });
-
 				dispatch(getOrderDetails(orderId));
 			}
 			else if (!order.isPaid) {
 				if (!window.paypal) {
-					addPaypalScript();
+					addPayPalScript();
 				}
 				else {
 					setSdkReady(true);
@@ -76,19 +76,20 @@ const OrderScreen = ({ match, history }) => {
 			dispatch,
 			orderId,
 			successPay,
-			order,
 			successDeliver,
+			order,
 			history,
 			userInfo
 		]
 	);
 
 	const successPaymentHandler = (paymentResult) => {
+		console.log(paymentResult);
 		dispatch(payOrder(orderId, paymentResult));
 	};
 
 	const deliverHandler = () => {
-		dispatch(deliverOrder(orderId));
+		dispatch(deliverOrder(order));
 	};
 
 	return (

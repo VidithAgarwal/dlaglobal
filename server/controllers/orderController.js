@@ -1,5 +1,6 @@
 import Order from '../models/orderModel.js';
 import asyncHandler from 'express-async-handler';
+// import Razorpay from 'razorpay';
 
 // @Desc	CREATE NEW ORDER
 // @route	POST /api/orders
@@ -35,8 +36,23 @@ export const addOrderItems = asyncHandler(async (req, res) => {
 // @access	PRIVATE
 export const getOrderById = asyncHandler(async (req, res) => {
 	const order = await Order.findById(req.params.id).populate('user', 'name email');
-	console.log(order);
 	if (order) {
+		// const instance = new Razorpay({
+		// 	key_id     : process.env.RAZOR_PAY_KEY,
+		// 	key_secret : process.env.RAZOR_PAY_SECRET
+		// });
+
+		// var options = {
+		// 	amount   : (totalPrice * 100).toString(),
+		// 	currency : 'INR',
+		// 	receipt  : '123456'
+		// };
+
+		// const paymentObject =
+
+		// 		order.paymentMethod === 'RazorPay' ? await instance.orders.create(options) :
+		// 		{};
+
 		res.json(order);
 	}
 	else {
